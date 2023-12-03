@@ -9,8 +9,8 @@ $$
 $$
 
 where:
-    - $\theta$ is the angular displacement.
-    - $b$ is the damping coefficient.
-    - $g$ is the acceleration due to gravity.
-    - $L$ is the length of the pendulum.
+- $\theta$ is the angular displacement.
+- $b$ is the damping coefficient.
+- $g$ is the acceleration due to gravity.
+- $L$ is the length of the pendulum.
 
