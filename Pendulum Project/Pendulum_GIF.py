@@ -73,7 +73,7 @@ for i in range(len(sol.t)):
     filenames.append(filename)
 
 # Create a GIF
-with imageio.get_writer('pendulum_motion.gif', mode='I', fps=20) as writer:
+with imageio.get_writer('pendulum_motion.gif', mode='I', fps=20, loop=0) as writer:
     for filename in filenames:
         image = imageio.imread(filename)
         writer.append_data(image)

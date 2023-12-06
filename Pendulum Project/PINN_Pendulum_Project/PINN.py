@@ -65,7 +65,7 @@ def compute_loss(model, t_data, y0):
     return ode_loss + ic_loss
 
 # Training Function
-def train(model, optimizer, t_data, y0, epochs, t_eval):
+def train(model, optimizer, t_data, y0, epochs, t_eval, theta_data, omega_data):
     loss_history = []
     for epoch in range(epochs):
         with tf.GradientTape() as tape:
@@ -75,13 +75,11 @@ def train(model, optimizer, t_data, y0, epochs, t_eval):
         loss_history.append(loss.numpy())
         if epoch % 1000 == 0:
             print(f"Epoch {epoch+1}, Loss: {loss.numpy()}")
-            plot_predictions(model, t_eval, epoch, folder_path)
+            plot_predictions(model, t_eval, epoch, folder_path, theta_data, omega_data)
     return loss_history
 
 # Plotting Functions
-def plot_predictions(model, t_eval, epoch, folder_path):
-    # Declare theta_data and omega_data as global
-    global theta_data, omega_data
+def plot_predictions(model, t_eval, epoch, folder_path, theta_data, omega_data):
 
     # Predicted solution (uniformly sampled from [0,10])
     predicted_solution = model(t_eval).numpy()
@@ -117,18 +115,18 @@ def plot_predictions(model, t_eval, epoch, folder_path):
     plt.close(fig)
 
 def plot_log_error(true_values, predicted_values, t_eval_predict, title, filename):
-    error = np.log(np.abs(true_values - predicted_values) + 1e-10)  # Log error
+    error = np.log10(np.abs(true_values - predicted_values) + 1e-10)  # Log error
     plt.figure(figsize=(10, 8), dpi=400)
     plt.plot(t_eval_predict, error)
     plt.xlabel('Time')
-    plt.ylabel('Log Error')
+    plt.ylabel('Log Base 10 Error')
     plt.title(title)
     plt.savefig(filename)
     plt.close()
 
 def plot_interval_predictions(model, t_span_predict, y0):
     # Generate true solution and predictions
-    t_eval_predict = np.linspace(t_span_predict[0], t_span_predict[1], 300).reshape(-1, 1)
+    t_eval_predict = np.linspace(t_span_predict[0], t_span_predict[1], 1000).reshape(-1, 1)
     sol_predict = generate_ode_solution(t_span_predict, y0, t_eval_predict.flatten())
     model_predictions = model(t_eval_predict).numpy()
 
@@ -161,29 +159,29 @@ def plot_interval_predictions(model, t_span_predict, y0):
 # Create GIF from Training Plots
 def create_gif(image_folder, gif_name):
     filenames = [f'{image_folder}prediction_{i+1}.png' for i in range(0, epochs, 1000)]
-    with imageio.get_writer(gif_name, mode='I', duration=1) as writer:
+    with imageio.get_writer(gif_name, mode='I', duration=1, loop=0) as writer:
         for filename in filenames:
             image = imageio.imread(filename)
             writer.append_data(image)
             #os.remove(filename)
 
 # Data Preparation
-t_span, t_eval = [0, 10], np.linspace(0, 10, 1000).reshape(-1, 1)
-t_eval_colloc = tf.constant(np.linspace(0, 20, 500).reshape(-1, 1), dtype=tf.float32)
-sol = generate_ode_solution(t_span, y0, t_eval.flatten())
-t_data, theta_data, omega_data = tf.constant(t_eval_colloc, dtype=tf.float32), sol.y[0], sol.y[1]
+t_eval_train = tf.constant(np.linspace(0, 20, 500).reshape(-1, 1), dtype=tf.float32)
+t_span_plot, t_eval_plot = [0, 10], np.linspace(0, 10, 1000).reshape(-1, 1) #for plotting purposes
+sol = generate_ode_solution(t_span_plot, y0, t_eval_plot.flatten()) #for plotting purposes
+theta_data_plot, omega_data_plot = sol.y[0], sol.y[1] #for plotting purposes
 
 # Model Training
 model = DampedPendulumModel()
 optimizer = tf.keras.optimizers.legacy.Adam(learning_rate=0.001)
 epochs = 30001
-loss_history = train(model, optimizer, t_eval_colloc, y0, epochs, t_eval)
+loss_history = train(model, optimizer, t_eval_train, y0, epochs, t_eval_plot, theta_data_plot, omega_data_plot)
 
 # Plot Loss History
 plt.figure(figsize=(10, 8), dpi=400)
-plt.plot(np.log(loss_history))
+plt.plot(np.log10(loss_history))
 plt.xlabel('Epoch')
-plt.ylabel('Loss')
+plt.ylabel('Log Base 10 Loss')
 plt.title('PINN Model Log-Loss History')
 plt.savefig('model_loss_history.png')
 plt.show()

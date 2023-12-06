@@ -108,16 +108,16 @@ def plot_predictions_outside_training(t_data, predictions, theta_data, omega_dat
 
 # Function to plot log error
 def plot_log_error(t_data, predictions, actual_data, filename):
-    error = np.log(np.abs(predictions - actual_data) + 1e-10)  # adding a small constant to avoid log(0)
+    error = np.log10(np.abs(predictions - actual_data) + 1e-10)  # adding a small constant to avoid log(0)
     plt.figure(figsize=(10, 8), dpi=400)
     plt.plot(t_data, error)
     plt.xlabel('Time')
-    plt.ylabel('Log Error')
+    plt.ylabel('Log Base 10 Error')
     plt.title('Log Error Over Time')
     plt.savefig(filename)
     plt.close()
 def create_gif(plot_filenames, gif_name):
-    with iio.get_writer(gif_name, mode='I', duration=1) as writer:
+    with iio.get_writer(gif_name, mode='I', duration=1, loop=0) as writer:
         for filename in plot_filenames:
             image = iio.imread(filename)
             writer.append_data(image)
@@ -125,13 +125,13 @@ def create_gif(plot_filenames, gif_name):
 
 # Function to generate data for a new time interval
 def generate_new_data(time_interval):
-    t_eval_new = np.linspace(time_interval[0], time_interval[1], 100)
+    t_eval_new = np.linspace(time_interval[0], time_interval[1], 1000)
     sol_new = solve_ivp(damped_pendulum, time_interval, y0, t_eval=t_eval_new)
     return t_eval_new, sol_new.y[0], sol_new.y[1]
 
-# Time span for the solution
+# Time span for the solution [Training Data]
 t_span = [0, 10]  # From t=0 to t=10 seconds
-t_eval = np.linspace(t_span[0], t_span[1], 1000)  # Evaluate at 1000 time points
+t_eval = np.linspace(t_span[0], t_span[1], 250)  # Evaluate at 1000 time points
 
 # Solve the ODE
 sol = solve_ivp(damped_pendulum, t_span, y0, t_eval=t_eval)
@@ -151,9 +151,9 @@ vanilla_loss_history, plot_filenames = train_vanilla(vanilla_model, optimizer, t
 
 # Plot vanilla model loss history
 plt.figure(figsize=(10, 8), dpi=400)
-plt.plot(np.log(vanilla_loss_history))
+plt.plot(np.log10(vanilla_loss_history))
 plt.xlabel('Epoch')
-plt.ylabel('Loss')
+plt.ylabel('Log Base 10 Loss')
 plt.title('Vanilla Model Log-Loss History')
 plt.savefig('Vanilla_Model_Loss_History.png')
 plt.show()
