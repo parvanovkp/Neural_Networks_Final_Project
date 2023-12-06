@@ -106,7 +106,7 @@ losshistory, train_state = model.train(epochs=epochs, callbacks=[callback])
 # Compile saved plots into a GIF after training
 images = []
 filenames = [f'theta_epoch_{i+1}.png' for i in range(0, epochs, 1000)] + [f'theta_epoch_{epochs}.png']
-with iio.get_writer('training_progress_DDE_PINN.gif', mode='I', duration=1, loop=0) as writer:
+with iio.get_writer('training_progress_DDE_PINN.gif', mode='I', duration=5, loop=0, fps=6) as writer:
     for filename in filenames:
         image = iio.imread(filename)
         writer.append_data(image)

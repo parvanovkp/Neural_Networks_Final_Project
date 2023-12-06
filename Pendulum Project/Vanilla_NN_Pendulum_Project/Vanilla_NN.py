@@ -117,7 +117,7 @@ def plot_log_error(t_data, predictions, actual_data, filename):
     plt.savefig(filename)
     plt.close()
 def create_gif(plot_filenames, gif_name):
-    with iio.get_writer(gif_name, mode='I', duration=1, loop=0) as writer:
+    with iio.get_writer(gif_name, mode='I', duration=5, loop=0, fps=6) as writer:
         for filename in plot_filenames:
             image = iio.imread(filename)
             writer.append_data(image)

@@ -159,7 +159,7 @@ def plot_interval_predictions(model, t_span_predict, y0):
 # Create GIF from Training Plots
 def create_gif(image_folder, gif_name):
     filenames = [f'{image_folder}prediction_{i+1}.png' for i in range(0, epochs, 1000)]
-    with imageio.get_writer(gif_name, mode='I', duration=1, loop=0) as writer:
+    with imageio.get_writer(gif_name, mode='I', duration=5, loop=0, fps=6) as writer:
         for filename in filenames:
             image = imageio.imread(filename)
             writer.append_data(image)
