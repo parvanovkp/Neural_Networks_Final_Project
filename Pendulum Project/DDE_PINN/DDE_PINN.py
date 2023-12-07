@@ -83,6 +83,8 @@ class SavePredictionCallback(dde.callbacks.Callback):
         plt.plot(self.t_data, self.true_solution[:, 0], label='True Theta', color="lightblue")
         plt.xlabel('Time')
         plt.ylabel('Theta')
+        plt.xlim(0,20)
+        plt.ylim(-0.45, 0.85)
         plt.title(f'Epoch {epoch}')
         plt.legend()
         filename = f'theta_epoch_{epoch}.png'
